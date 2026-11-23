@@ -1,11 +1,13 @@
-# Data, provenance, and publication boundaries
+# Data and publication scope
 
-This package was written for public portfolio use. Its inputs are textbook-style equations, publicly accessible methodological references, and newly generated synthetic examples. It includes no copied collaborative source, real patient data, trained weights, private results, internal review documents, meeting transcripts, emails, or licensed paper files.
+The case study describes Hongrui Liu's evaluation work in a collaborative oncology project. Clinical records, study-level performance estimates, shared model code and weights, meeting materials and third-party documents stay with their respective owners. The repository contains original educational implementations, synthetic outputs and links to public methodology.
 
-The demo creates independent exponential event and censoring times from a fixed seed and arbitrary illustrative rates. All synthetic rows remain in memory; only aggregate counts and ratios are written. Its distributions are not calibrated to a clinical dataset. The short and long follow-up scenarios are artificial and do not represent actual trials.
+| Public program | Origin of its inputs | Saved output |
+|---|---|---|
+| `demo.py` | Independent exponential event and censoring times, generated from a fixed seed and illustrative rates | Aggregate report and CSV |
+| `landmark.py` | Six fictional clinical timelines written to exercise prediction-time rules | Console table |
+| `control_subsets.py` | An invented binary outcome vector for each arm and two fixed score patterns | Console error summary across all subsets |
 
-AI assistance and personal contributions are described in [CONTRIBUTIONS.md](CONTRIBUTIONS.md). Public methodological references are linked rather than redistributed.
+The examples use no downloads or patient files. The numbers illustrate the behavior of the evaluation methods. They do not measure the clinical performance of the team's models. No open-source license has been selected.
 
-No open-source license is selected in this prepared draft. Selecting a license is a separate publication decision; the absence of a license must not be described as an open-source grant. Do not add private source trees or internal evidence to Git history. A `.gitignore` is a convenience, not a confidentiality review or access-control mechanism.
-
-Before publication, review the exact file allowlist and confirm the profile wording and license choice. Local review receipts belong outside the public package. Do not attach them if they contain internal source paths or private evidence.
+[Authorship](CONTRIBUTIONS.md) · [Public methodology references](REFERENCES.md)
