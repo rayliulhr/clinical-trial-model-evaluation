@@ -30,4 +30,6 @@ For example, select three controls with zero events and scores of 0.25 each. The
 | Higher scores in the higher-event group | 24.4 percentage points | 21.1 percentage points |
 | Same scores assigned to the opposite groups | 24.4 percentage points | 32.3 percentage points |
 
+With the informative score, adjustment moves 38 of 56 estimates closer to the full-trial value and 18 farther away. With reversed scores, 18 move closer and 38 farther away. The replay counts each subset once and compares absolute errors within that same subset.
+
 Error is the root mean squared distance to the full-trial risk difference across all subsets. Average signed error is zero in both scenarios by construction. A reversed score makes individual estimates less precise even though their average is unchanged. This replay assumes complete outcomes at one horizon and baseline scores available for the entire control roster. It does not estimate a hazard ratio, establish how many people a trial can forgo enrolling, or measure the benefit of a clinical model. [Run the paired replay](../control_subsets.py) · [See the tests](../tests/test_worked_examples.py)

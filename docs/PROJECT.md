@@ -1,27 +1,33 @@
-# How I evaluated a virtual patient model
+# From an uncertain endpoint to a testable patient prediction
 
-A trial team might want to predict the course of a patient's disease, or estimate a drug's effect with fewer control outcomes. A group average can be accurate even when everyone receives the same prediction. A score that distinguishes patients within one trial can lose that ability in another. These observations shaped how I organized the evaluation.
+**My contribution.** I led a line of scientific evaluation within our collaborative virtual patient project. My work connected the clinical meaning of an endpoint to cohort construction, model comparisons and the decision about which question to test next. Three decisions illustrate that work.
 
-## From clinical records to a prediction question
+## 1. Establish what happened to the patient
 
-I directed a review of the path from clinical source tables through endpoint construction and model inputs. Two checks mattered particularly for oncology. A record that a scan took place establishes an assessment date. Calling it disease progression also requires the assessment finding and a matching endpoint rule. Similarly, a specimen collection date establishes when blood was drawn. Using the value to make a prediction requires evidence that the result was available by then.
+An oncology trial can record a scan, a new treatment and a later progression entry for the same patient. Reproducing a label from those dates shows how the software behaved. Determining which one counts as the endpoint requires the assessment finding and the version of the trial protocol that defines progression and censoring.
 
-We preserved earlier inputs during correction and separated documented mapping changes from cases that still needed a clinical interpretation of the protocol. When later anticancer therapy intervenes before recorded progression, the trial's rules determine the endpoint and censoring. A suspicious sequence of dates alone cannot settle the label. The [public worked example](../examples/WORKED_EXAMPLES.md#which-lab-was-available) makes the time-availability decision visible one record at a time.
+I directed a trace from the original tables and field labels through the transformation code to the derived outcomes. We isolated supported corrections, including where the software looked for a documented death date, and preserved the original inputs. When the applicable censoring rule remained uncertain, I kept those cases open for clinical adjudication. This let the project advance on a mortality question with a defined follow-up window while preserving the progression question for review.
 
-## Comparing patients fairly
+## 2. Make a fair test of individual prediction
 
-I specified a landmark question for a pancreatic cancer control arm. Among participants known to be alive at a fixed point during follow-up, could earlier measurements of the tumor marker CA19-9 and albumin help predict death over the next window? The comparisons used the same eligible patients and outcome window for a group-average forecast, a forecast based on baseline performance status, and a longitudinal survival model. We kept patients with missing labs and examined their errors separately. Follow-up ending early leaves a person's eventual status unknown.
+For a pancreatic cancer control arm, I specified a comparison among patients alive at day 84. Could baseline physical functioning and earlier measurements of **CA19-9** and **albumin** improve prediction of death by day 168? CA19-9 is a tumor marker. Albumin is a blood protein routinely measured in clinical care.
 
-I also directed comparisons of the candidate world model against a simpler prognostic model, keeping related trials together when splitting the data. We inspected saved predictions within trial families to ask whether the models could rank individual patients who shared a clinical setting. Reviewing the weakest fold prompted a check of both the population represented during development and the definition of the outcome. A more complex model had to earn its place against those comparisons. [Comparator designs](BASELINES.md)
+| Design choice | Why it mattered |
+|---|---|
+| Compare a group-average forecast, baseline performance status and the longitudinal model on the same patients and time window. | Otherwise one model could look better because it was evaluated on an easier group. |
+| Keep people who have no usable lab and examine them separately. | Dropping them would conceal how the model behaves when a clinician has less information. |
+| Distinguish collection time from result availability, and early loss to follow-up from survival. | The first distinction prevents future information from entering the model. The second prevents an unknown outcome from being labeled as survival. |
 
-## Connecting prognosis to trial design
+In a separate cross-trial comparison, I kept related trials together in the evaluation split and examined the group on which performance deteriorated most. I checked the representation of that clinical population in development and the endpoint mapping before considering changes to the model. [Matched comparator designs](BASELINES.md) · [Prediction-time rules in six fictional records](../examples/WORKED_EXAMPLES.md#which-lab-was-available)
 
-I designed a retrospective test of a reduced-control analysis. Start with a complete randomized trial, retain the treated arm and draw a smaller subset of controls. Estimate the effect twice on the same subset, with and without help from a prespecified prognostic score. Compare each estimate to the one from all controls. Using identical subsets makes the comparison fair. Repeating this under a deliberately misleading score reveals how much an adjustment can hurt if the relationship between score and outcome changes.
+## 3. Test what a smaller control group could recover
 
-Our research question concerns time-to-event treatment effects. The [public replay](../examples/WORKED_EXAMPLES.md#what-happens-with-fewer-controls) uses a fixed-horizon difference in event proportions so a reader can check every estimate by hand. Recovering a full-trial estimate and recovering the true treatment effect are distinct goals. A full trial still has sampling error.
+A team considering fewer control outcomes needs to know how far its treatment-effect estimate might move. I designed a paired comparison that holds the treatment arm fixed, selects a smaller control group, and calculates the effect twice on exactly those patients. Both estimates are judged against the estimate from the complete trial. I included a score whose relationship with outcome reverses, so the design exposes a circumstance in which adjustment can hurt.
 
-## What would change my confidence?
+The public example uses an event proportion at a fixed time, which makes every calculation checkable by hand. It reproduces the logic of the comparison. The clinical research question uses a time-to-event endpoint and requires a separate hazard-ratio analysis. The full-trial estimate also has sampling error. [Worked example and exact replay](../examples/WORKED_EXAMPLES.md#what-happens-with-fewer-controls)
 
-The next evidentiary step is an independent, two-arm trial with a documented development history. At randomization, a frozen score would be tested for added prognostic information among patients in the same arm with similar performance status and region. That requires the original allocation information, baseline result-availability times, a complete randomized roster and documented vital-status follow-up. A lab recorded during treatment can inform a later patient prediction but cannot justify an enrollment-time trial analysis. External clinical validation and prospective control-arm reduction remain open questions.
+## What would justify the next step?
 
-[Hongrui's contribution](CONTRIBUTIONS.md) · [Executable examples](../README.md#three-examples-you-can-inspect)
+I specified a test on a two-arm trial held out of development. At randomization, can a frozen score distinguish prognosis among patients in the same arm with similar performance status and region? The prerequisites are documented independence, original allocation records, evidence of which baseline labs had been reported, and complete rules for death follow-up. An independent clinical evaluation remains the next milestone.
+
+[Contributions and authorship](CONTRIBUTIONS.md) · [Public implementations](../README.md#three-examples-you-can-inspect)

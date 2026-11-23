@@ -1,7 +1,7 @@
 """Exact replay of all three-of-eight control subsets in a fictional trial."""
 
 from itertools import combinations
-from math import sqrt
+from math import isclose, sqrt
 from statistics import mean
 
 # Complete binary outcomes at one fixed horizon, ordered by baseline score group.
@@ -36,13 +36,30 @@ def rmse(estimates, reference):
     return sqrt(mean((value - reference) ** 2 for value in estimates))
 
 
+def paired_counts(reference, pairs):
+    """Count changes in absolute error relative to the same full-trial estimate."""
+    closer = unchanged = farther = 0
+    for unadjusted, adjusted in pairs:
+        before = abs(unadjusted - reference)
+        after = abs(adjusted - reference)
+        if isclose(before, after, rel_tol=0.0, abs_tol=1e-12):
+            unchanged += 1
+        elif after < before:
+            closer += 1
+        else:
+            farther += 1
+    return closer, unchanged, farther
+
+
 def main():
-    print("Score | Subsets | Full difference | Unadjusted RMSE | Adjusted RMSE")
+    print("Score | Subsets | Full difference | Unadjusted RMSE | Adjusted RMSE | Closer/unchanged/farther")
     for label, scores in (("aligned", ALIGNED), ("reversed", REVERSED)):
         reference, pairs = replay(CONTROL_EVENTS, TREATED_EVENTS, scores, 3)
         unadjusted, adjusted = zip(*pairs)
+        closer, unchanged, farther = paired_counts(reference, pairs)
         print(f"{label} | {len(pairs)} | {reference:.3f} | "
-              f"{rmse(unadjusted, reference):.3f} | {rmse(adjusted, reference):.3f}")
+              f"{rmse(unadjusted, reference):.3f} | {rmse(adjusted, reference):.3f} | "
+              f"{closer}/{unchanged}/{farther}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import unittest
 from statistics import mean
 
-from control_subsets import ALIGNED, CONTROL_EVENTS, REVERSED, TREATED_EVENTS, replay, rmse
+from control_subsets import ALIGNED, CONTROL_EVENTS, REVERSED, TREATED_EVENTS, paired_counts, replay, rmse
 from landmark import CASES, Lab, Timeline, landmark_row
 
 
@@ -39,6 +39,12 @@ class SubsetTests(unittest.TestCase):
         self.assertEqual(plain, plain_again)
         self.assertLess(rmse(good, reference), rmse(plain, reference))
         self.assertGreater(rmse(bad, reference), rmse(plain, reference))
+
+    def test_paired_count_tracks_the_same_subset_and_handles_ties(self):
+        self.assertEqual(paired_counts(0.5, [(0.1, 0.3), (0.6, 0.9), (0.4, 0.6)]), (1, 1, 1))
+        for scores, expected in [(ALIGNED, (38, 0, 18)), (REVERSED, (18, 0, 38))]:
+            reference, pairs = replay(CONTROL_EVENTS, TREATED_EVENTS, scores, 3)
+            self.assertEqual(paired_counts(reference, pairs), expected)
 
     def test_constant_score_and_full_sample(self):
         _, pairs = replay(CONTROL_EVENTS, TREATED_EVENTS, [0.5] * 8, 3)
